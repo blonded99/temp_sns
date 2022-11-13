@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "266986932662",
+    "project_id": "followtest-14175",
+    "storage_bucket": "followtest-14175.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266986932662:android:7dbc08c486406a2e7bd917",
+        "android_client_info": {
+          "package_name": "com.example.follow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "266986932662-aleopjk6t6thaqbvd8fjca06t69p32th.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa3FlSQaA5U4cGB2xCMvyQuXmVBqC5nIc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "266986932662-aleopjk6t6thaqbvd8fjca06t69p32th.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
