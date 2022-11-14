@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
 
 class RecyclerViewAdapter(private val viewModel: MyViewModel):
@@ -38,6 +39,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
         fun setContents(pos: Int){
             with(viewModel.items[pos]){
                 // profileImage 세팅
+                Glide.with(itemView).load(profileImageUrl).into(profileImage)
                 username.text = followerUsername
             }
             followbutton.setOnClickListener {

@@ -51,19 +51,20 @@ class FollowerFragment : Fragment() {
         }
 
         //firestore DB에서 팔로워 목록 긁어와 username과 프로필사진 출력
-//        followerList.get().addOnSuccessListener {
-//            for (u in it){
-//            }
-//        }
+        followerList.get().addOnSuccessListener {
+            for (u in it){
+                viewModel.addItem(Item(u["profile_image"].toString(),u.id))
+            }
+        }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         val adapter = RecyclerViewAdapter(viewModel)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-//        viewModel.itemsListData.observe(viewLifecycleOwner){
-//            adapter.notifyDataSetChanged()
-//        }
+        viewModel.itemsListData.observe(viewLifecycleOwner){
+            adapter.notifyDataSetChanged()
+        }
 
 
 //        val textview1 = view.findViewById<TextView>(R.id.username)
