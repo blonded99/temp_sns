@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -36,6 +37,7 @@ class FollowFragment : Fragment() {
 //        return inflater.inflate(R.layout.fragment_follower, container, false)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -57,5 +59,12 @@ class FollowFragment : Fragment() {
 //            tab.text = "Tab ${position+1}"
             tab.text = tabTitleArray[position]
         }.attach()
+
+        val searchbutton = view?.findViewById<ImageButton>(R.id.searchButton)
+        if (searchbutton != null) {
+            searchbutton.setOnClickListener {
+                println("search button clicked")
+            }
+        }
     }
 }
