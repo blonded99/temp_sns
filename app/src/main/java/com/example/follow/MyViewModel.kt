@@ -9,11 +9,6 @@ class MyViewModel: ViewModel() {
     val itemsListData = MutableLiveData<ArrayList<Item>>()
     val items = ArrayList<Item>()
 
-//    init{
-//        addItem(Item("abcd","blonded99"))
-//        addItem(Item("abcd","didls2654"))
-//    }
-
     fun addItem(item: Item){
         items.add(item)
         itemsListData.value = items

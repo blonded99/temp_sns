@@ -27,7 +27,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
     }
 
     override fun getItemCount(): Int {
-        // 팔로워 숫자
+        // 팔로워 수
         return viewModel.items.size
     }
 
@@ -57,12 +57,10 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 println(viewModel.items[index].followerUsername)
 
 
-                // 팔로우 버튼 누르면 팔로우 버튼이 더이상 안 보이게 처리되고
+                // 팔로우 버튼 누르면 팔로우 버튼이 더이상 안 보이게 처리되고 기능 비활성화
                 followbutton.visibility = View.INVISIBLE
-                // 기능도 비활성화 되어야 함
 
                 // 내 팔로잉 숫자 +1
-
                 // 내 팔로잉 목록에 해당 유저 추가
 
                 // 해당 유저 팔로워 숫자 +1

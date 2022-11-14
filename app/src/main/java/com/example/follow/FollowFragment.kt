@@ -28,7 +28,7 @@ class FollowFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         val view:View = inflater.inflate(R.layout.fragment_follow, container, false)
         viewPager = view.findViewById(R.id.pager)
@@ -55,7 +55,6 @@ class FollowFragment : Fragment() {
         })
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-//            tab.text = "Tab ${position+1}"
             tab.text = tabTitleArray[position]
         }.attach()
 
