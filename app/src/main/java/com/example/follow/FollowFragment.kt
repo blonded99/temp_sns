@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -27,7 +28,7 @@ class FollowFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         val view:View = inflater.inflate(R.layout.fragment_follow, container, false)
         viewPager = view.findViewById(R.id.pager)
@@ -36,8 +37,8 @@ class FollowFragment : Fragment() {
 //        return inflater.inflate(R.layout.fragment_follower, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val pagerAdapter = PagerFragmentStateAdapter(requireActivity())
         // 2개의 fragment add
@@ -47,15 +48,19 @@ class FollowFragment : Fragment() {
         // adapter 연결
         viewPager.adapter = pagerAdapter
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int){
+            override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                Log.e("ViewPagerFragment", "Page ${position+1}")
+                Log.e("ViewPagerFragment", "Page ${position + 1}")
             }
         })
 
-        TabLayoutMediator(tabLayout, viewPager){ tab, position ->
-//            tab.text = "Tab ${position+1}"
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitleArray[position]
         }.attach()
+
+        val searchbutton = view.findViewById<ImageButton>(R.id.searchButton)
+        searchbutton.setOnClickListener {
+            println("search button clicked")
+        }
     }
 }
