@@ -9,6 +9,9 @@ class MyViewModel: ViewModel() {
     val itemsListData = MutableLiveData<ArrayList<Item>>()
     val items = ArrayList<Item>()
 
+//    var mapItems = mutableMapOf<String,String>()
+//    val mapsListData = MutableLiveData<MutableMap<String,String>>()
+
     fun addItem(item: Item){
         items.add(item)
         itemsListData.value = items
@@ -23,4 +26,5 @@ class MyViewModel: ViewModel() {
         items.removeAt(pos)
         itemsListData.value = items
     }
+
 }
