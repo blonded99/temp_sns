@@ -21,11 +21,14 @@ class FollowerFragment : Fragment() {
 
     val db = Firebase.firestore
     val SignInUserEmail = "didls2654@hansung.ac.kr"
+    val SignInUsername = "test"
 
     // folllower collection ref
     val followerList = db.collection("user").document(SignInUserEmail).collection("follower")
     // useremail document ref
     val userRef = db.collection("user").document(SignInUserEmail)
+    // user Collection Ref
+    val userColRef = db.collection("user")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +52,17 @@ class FollowerFragment : Fragment() {
 //        }
 
         // firestore DB에서 팔로워 목록 긁어와 username과 프로필사진url을 viewmodel에 넣음
-        followerList.get().addOnSuccessListener {
-            for (u in it){
-                viewModel.addItem(Item(u["profile_image"].toString(),u.id))
+//        followerList.get().addOnSuccessListener {
+//            for (u in it){
+//                viewModel.addItem(Item(u["profile_image"].toString(),u.id))
+//            }
+//        }
+        userColRef.document(SignInUsername).get()
+            .addOnSuccessListener {
+                for (i in it["follower"] as MutableMap<*, *>)
+                    viewModel.addItem(Item(i.key.toString(),i.value.toString()))
+
             }
-        }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         val adapter = RecyclerViewAdapter(viewModel)

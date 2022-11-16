@@ -59,6 +59,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
 
                 // 팔로우 버튼 누르면 팔로우 버튼이 더이상 안 보이게 처리되고 기능 비활성화
                 followbutton.visibility = View.INVISIBLE
+                follow()
 
                 // 내 팔로잉 숫자 +1
                 // 내 팔로잉 목록에 해당 유저 추가
@@ -74,6 +75,14 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 // 해당 유저 팔로잉 숫자 -1
                 // 해당 유저 팔로잉 목록에서 나 삭제
             }
+        }
+
+        private fun follow(){
+            userColRef.document("test").get()
+                .addOnSuccessListener {
+                    for (i in it["follower"] as MutableMap<*, *>)
+                        println("${i.key},${i.value}")
+                }
         }
 
     }

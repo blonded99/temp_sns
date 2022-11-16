@@ -3,7 +3,7 @@ package com.example.follow
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-data class Item(val profileImageUrl: String, val followerUsername: String)
+data class Item(val followerUsername: String, val profileImageUrl: String)
 
 class MyViewModel: ViewModel() {
     val itemsListData = MutableLiveData<ArrayList<Item>>()
