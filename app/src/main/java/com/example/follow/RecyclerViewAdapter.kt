@@ -15,7 +15,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
     RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_view,
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_view_follower,
             parent, false)
 //        val inflater = LayoutInflater.from(parent.context)
 //        val binding = ItemViewBinding.inflate(inflater,parent,false)
@@ -39,7 +39,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
 
 
         private val profileImage: CircleImageView = itemView.findViewById(R.id.circleImageView)
-        private val username: TextView = itemView.findViewById(R.id.userNametextView)
+        private val followerUsername: TextView = itemView.findViewById(R.id.userNametextView)
         private val followbutton: ImageButton = itemView.findViewById(R.id.followButton)
         private val deletebutton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
@@ -48,14 +48,14 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 // profileImage 세팅
                 Glide.with(itemView).load(profileImageUrl).into(profileImage)
                 // username 세팅
-                username.text = followerUsername
+                followerUsername.text = username
 
                 // 이미 맞팔이면 팔로우 버튼 처음부터 안 뜨게 처리
-                // <issue> 약간 느리게 나오는 이슈 있음
+                // <issue> 약간 느리게 나오는 이슈 있음, 다른 로직으로 바꿔야 할 듯
                 userColRef.document(SignInUsername).get()
                     .addOnSuccessListener {
                         val followingList = it["following"] as MutableMap<String,String>
-                        if(followingList.containsKey(followerUsername))
+                        if(followingList.containsKey(username))
                             followbutton.visibility = View.INVISIBLE
                     }
             }
@@ -87,7 +87,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 .addOnSuccessListener {
                     var followingList = mutableMapOf<String, String>() // 팔로우 버튼 누른 user의 원래 팔로잉 목록
                     followingList = it["following"] as MutableMap<String, String> // 현재 로그인한 user의 팔로잉 목록에
-                    followingList.put(clickedUser.followerUsername, clickedUser.profileImageUrl) // 해당 유저 추가
+                    followingList.put(clickedUser.username, clickedUser.profileImageUrl) // 해당 유저 추가
 
                     userColRef.document(SignInUsername)
                         .update("following", followingList) // firestore 팔로잉 목록 update
@@ -96,14 +96,16 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
 
                     val SignInUsernameProfileImage = it["profile image"].toString() // 현재 로그인한 user의 profile image
 
-                    userColRef.document(clickedUser.followerUsername).get()
+                    userColRef.document(clickedUser.username).get()
                         .addOnSuccessListener {
                             var followerList = mutableMapOf<String,String>() // 팔로우 버튼이 클릭 당한 user의 원래 팔로워 목록
                             followerList = it["follower"] as MutableMap<String, String> // 클릭당한 user의 팔로워 목록에
                             followerList.put(SignInUsername,SignInUsernameProfileImage) // 현재 로그인한 user 추가
 
-                            userColRef.document(clickedUser.followerUsername).update("follower",followerList) // firestore 팔로워 목록 update
-                            userColRef.document(clickedUser.followerUsername).update("follower count",followerList.size) // firestore 팔로워 수 update
+                            userColRef.document(clickedUser.username).update("follower",followerList) // firestore 팔로워 목록 update
+                            userColRef.document(clickedUser.username).update("follower count",followerList.size) // firestore 팔로워 수 update
+
+                            viewModel.addItem2(Item(clickedUser.username,it["profile image"].toString()))
                         }
                 }
         }
@@ -119,20 +121,20 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 .addOnSuccessListener {
                     var followerList = mutableMapOf<String,String>() // 삭제 버튼 누른 user의 원래 팔로워 목록
                     followerList = it["follower"] as MutableMap<String,String> // 현재 로그인한 user의 팔로워 목록에
-                    followerList.remove(clickedUser.followerUsername) // 해당 유저 삭제
+                    followerList.remove(clickedUser.username) // 해당 유저 삭제
 
                     userColRef.document(SignInUsername).update("follower",followerList) // firestore 팔로워 목록 update
                     userColRef.document(SignInUsername).update("follower count",followerList.size) // firestore 팔로워 수 update
                 }
 
-            userColRef.document(clickedUser.followerUsername).get()
+            userColRef.document(clickedUser.username).get()
                 .addOnSuccessListener {
                     var followingList = mutableMapOf<String,String>() // 삭제 버튼 클릭당한 user의 원래 팔로잉 목록
                     followingList = it["following"] as MutableMap<String, String> // 클릭당한 user의 팔로잉 목록에서
                     followingList.remove(SignInUsername) // 현재 로그인한 user 삭제
 
-                    userColRef.document(clickedUser.followerUsername).update("following",followingList) // firestore 팔로잉 목록 update
-                    userColRef.document(clickedUser.followerUsername).update("following count",followingList.size) // firestore 팔로잉 수 update
+                    userColRef.document(clickedUser.username).update("following",followingList) // firestore 팔로잉 목록 update
+                    userColRef.document(clickedUser.username).update("following count",followingList.size) // firestore 팔로잉 수 update
                 }
 
             viewModel.deleteItem(adapterPosition)
