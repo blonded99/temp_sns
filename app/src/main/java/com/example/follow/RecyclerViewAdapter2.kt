@@ -35,7 +35,7 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
 
         val db = Firebase.firestore
         val userColRef = db.collection("user")
-        val SignInUsername = "test"
+        val currentUid = "currentUserUid"
 
 
         private val profileImage: CircleImageView = itemView.findViewById(R.id.circleImageView)
@@ -65,29 +65,64 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
             // <issue> 맞팔중인 상태에서 팔로잉 목록에서 unfollow 했을때, 팔로워 목록에 있는 해당 유저에 Follow 버튼이 다시 활성화 되어야 하는데 보이지 않음.
 
             val index = adapterPosition
-            println(adapterPosition)
-            val clickedUser = viewModel.items2[index] // 현재 로그인한 user의 팔로잉 목록에서 언팔로우 버튼 클릭 당한 user
-            userColRef.document(SignInUsername).get()
+            val clickedUser = viewModel.items2[index] // 현재 로그인한 user의 팔로잉 목록에서 언팔로우당한 user
+            userColRef.document(currentUid).get()
                 .addOnSuccessListener {
-                    var followingList = mutableMapOf<String,String>() // 언팔로우 버튼 누른 user의 원래 팔로잉 목록
-                    followingList = it["following"] as MutableMap<String,String> // 현재 로그인한 user의 팔로잉 목록에
+//                    var followingList = mutableMapOf<String,String>() // 언팔로우 버튼 누른 user의 원래 팔로잉 목록
+                    val followingList = it["following"] as MutableMap<String,String> // 현재 로그인한 user의 팔로잉 목록에서
                     followingList.remove(clickedUser.username) // 해당 유저 삭제
 
-                    userColRef.document(SignInUsername).update("following",followingList) // firestore 팔로잉 목록 update
-                    userColRef.document(SignInUsername).update("following count",followingList.size) // firestore 팔로잉 수 update
+                    userColRef.document(currentUid)
+                        .update("following",followingList) // firestore 팔로잉 목록 update
+                    userColRef.document(currentUid)
+                        .update("following count",followingList.size) // firestore 팔로잉 수 update
+
+
+
+
+
+                    val currentUsername = it["username"].toString() // 현재 로그인한 user의 username 받아오기
+
+
+                    userColRef.whereEqualTo("username",clickedUser.username).get()
+                        .addOnSuccessListener {
+                            for(doc in it){
+                                val followerList = doc["follower"] as MutableMap<String, String> // 언팔로우당한 user의 팔로워 목록에서
+                                followerList.remove(currentUsername) // 현재 로그인한 user 삭제
+
+                                userColRef.document(doc.id)
+                                    .update("follower",followerList) // firestore 팔로워 목록 update
+                                userColRef.document(doc.id)
+                                    .update("follower count",followerList.size) // firestore 팔로워 수 update
+                            }
+                        }
+//                    userColRef.document(clickedUser.username).get()
+//                        .addOnSuccessListener {
+////                    var followerList = mutableMapOf<String,String>() // 언팔로우 버튼 클릭당한 user의 원래 팔로워 목록
+//                            val followerList = it["follower"] as MutableMap<String, String> // 언팔로우당한 user의 팔로워 목록에서
+//                            followerList.remove(currentUsername) // 현재 로그인한 user 삭제
+//
+//                            userColRef.document(clickedUser.username)
+//                                .update("follower",followerList) // firestore 팔로워 목록 update
+//                            userColRef.document(clickedUser.username)
+//                                .update("follower count",followerList.size) // firestore 팔로워 수 update
+//                        }
                 }
 
-            userColRef.document(clickedUser.username).get()
-                .addOnSuccessListener {
-                    var followerList = mutableMapOf<String,String>() // 언팔로우 버튼 클릭당한 user의 원래 팔로워 목록
-                    followerList = it["follower"] as MutableMap<String, String> // 클릭당한 user의 팔로워 목록에서
-                    followerList.remove(SignInUsername) // 현재 로그인한 user 삭제
+//            userColRef.document(clickedUser.username).get()
+//                .addOnSuccessListener {
+////                    var followerList = mutableMapOf<String,String>() // 언팔로우 버튼 클릭당한 user의 원래 팔로워 목록
+//                    val followerList = it["follower"] as MutableMap<String, String> // 언팔로우당한 user의 팔로워 목록에서
+//                    followerList.remove(currentUid) // 현재 로그인한 user 삭제
+//
+//                    userColRef.document(clickedUser.username)
+//                        .update("follower",followerList) // firestore 팔로워 목록 update
+//                    userColRef.document(clickedUser.username)
+//                        .update("follower count",followerList.size) // firestore 팔로워 수 update
+//                }
 
-                    userColRef.document(clickedUser.username).update("follower",followerList) // firestore 팔로워 목록 update
-                    userColRef.document(clickedUser.username).update("follower count",followerList.size) // firestore 팔로워 수 update
-                }
-
-            viewModel.deleteItem2(adapterPosition)
+            // 앱에서 보여지는 현재 로그인한 user의 팔로잉 목록 업데이트
+            viewModel.deleteItem2(index)
 
             // <issue> 팔로우 버튼 다른 버튼으로(다시 팔로우하는) 변경하는거 추가해야함
             // 한 가지 대안으로, 버튼 텍스트를 "팔로잉" 말고 "팔로잉 중" 으로 바꾸고 follower 탭에서 삭제 버튼과 유사한 로직으로 그냥 삭제시켜버리면

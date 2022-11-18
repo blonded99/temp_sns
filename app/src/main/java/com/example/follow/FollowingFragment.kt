@@ -18,7 +18,7 @@ class FollowingFragment : Fragment() {
     val db = Firebase.firestore
 
     // 현재 로그인한 user의 username
-    val SignInUsername = "test"
+    val currentUid = "currentUserUid"
 
     // user Collection Ref
     val userColRef = db.collection("user")
@@ -38,8 +38,8 @@ class FollowingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // firestore에서 로그인한 user의 username으로 팔로잉 목록과 프로필 사진을 끌어와 viewmodel에 저장
-        userColRef.document(SignInUsername).get()
+        // firestore에서 로그인한 user의 uid인 document에서 팔로잉 목록과 프로필 사진을 끌어와 viewmodel에 저장
+        userColRef.document(currentUid).get()
             .addOnSuccessListener {
                 for (i in it["following"] as MutableMap<*, *>)
                     viewModel.addItem2(Item(i.key.toString(),i.value.toString()))
