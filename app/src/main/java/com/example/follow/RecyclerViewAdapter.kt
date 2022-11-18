@@ -1,5 +1,6 @@
 package com.example.follow
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -111,7 +112,11 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                                     .update("follower count",followerList.size) // firestore 팔로워 수 update
 
                                 // 앱에서 보여지는 현재 로그인한 user의 팔로잉 목록 업데이트
+                                // <issue> follower 탭에서 팔로우시 following탭에 즉시 반영되지 않는(오락가락함) 이슈 있는데
+                                // 일단 notifyDataSetChanged() 호출 문제는 아님. refresh로 호출해주는데도 변화가 없음.
                                 viewModel.addItem2(Item(clickedUser.username,doc["profile image"].toString()))
+                                Log.d("viewModelStatusLog","${viewModel.items2.get(0)}")
+                                // viewModel에는 정상적으로 들어감
                             }
                         }
 

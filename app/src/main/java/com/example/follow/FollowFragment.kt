@@ -50,6 +50,14 @@ class FollowFragment : Fragment() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                when(position){
+                    0 -> {
+                        pagerAdapter.refreshFragment(position,FollowerFragment())
+                    }
+                    1 -> {
+                        pagerAdapter.refreshFragment(position,FollowingFragment())
+                    }
+                }
                 Log.e("ViewPagerFragment", "Page ${position + 1}")
             }
         })

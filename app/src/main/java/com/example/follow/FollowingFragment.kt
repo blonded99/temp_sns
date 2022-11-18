@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -45,6 +46,7 @@ class FollowingFragment : Fragment() {
                     viewModel.addItem2(Item(i.key.toString(),i.value.toString()))
             }
 
+        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         val adapter = RecyclerViewAdapter2(viewModel)
         recyclerView.adapter = adapter
@@ -52,6 +54,12 @@ class FollowingFragment : Fragment() {
 
         viewModel.itemsListData2.observe(viewLifecycleOwner){
             adapter.notifyDataSetChanged()
+        }
+
+        refreshLayout.setOnRefreshListener {
+            adapter.notifyDataSetChanged()
+            refreshLayout.isRefreshing = false
+
         }
 
     }
