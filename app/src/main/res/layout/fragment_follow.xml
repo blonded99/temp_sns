@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".FollowFragment">
+    tools:context=".FollowFragment"
+    android:id="@+id/frameLayout">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -55,7 +56,7 @@
             android:layout_marginStart="16dp"
             android:background="#00FFFFFF"
             android:ems="10"
-            android:hint="Search other people"
+            android:hint="다른 사용자 검색"
             android:inputType="textPersonName"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="@+id/editTextBackground"

@@ -20,6 +20,11 @@ class PagerFragmentStateAdapter(fragmentActivity: FragmentActivity) : FragmentSt
         notifyItemInserted(fragments.size - 1)
     }
 
+    fun refreshFragment(index: Int, fragment: Fragment){
+        fragments[index] = fragment
+        notifyItemChanged(index)
+    }
+
 //    fun removeFragment(){
 //        fragments.removeLast()
 //        notifyItemRemoved(fragments.size)

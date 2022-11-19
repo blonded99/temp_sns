@@ -16,13 +16,12 @@ import com.google.firebase.ktx.Firebase
 import de.hdodenhof.circleimageview.CircleImageView
 
 class FollowerFragment : Fragment() {
-//    private lateinit var binding: FragmentFollowerBinding // 일단 binding 쓰는건 보류
     private val viewModel by viewModels<MyViewModel>()
 
     val db = Firebase.firestore
 
-    // 현재 로그인한 user의 username
-    val SignInUsername = "test"
+    // 현재 로그인한 user의 uid
+    val currentUid = "currentUserUid"
 
     // user Collection Ref
     val userColRef = db.collection("user")
@@ -42,15 +41,15 @@ class FollowerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // firestore에서 로그인한 user의 username으로 팔로워 목록과 프로필 사진을 끌어와 viewmodel에 저장
-        userColRef.document(SignInUsername).get()
+        // firestore에서 로그인한 user의 uid인 document에서 팔로워 목록과 프로필 사진을 끌어와 viewmodel에 저장
+        userColRef.document(currentUid).get()
             .addOnSuccessListener {
                 for (i in it["follower"] as MutableMap<*, *>)
                     viewModel.addItem(Item(i.key.toString(),i.value.toString()))
             }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = RecyclerViewAdapter(viewModel)
+        val adapter = RecyclerViewAdapter(viewModel,context)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
