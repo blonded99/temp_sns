@@ -1,5 +1,8 @@
 package com.example.follow
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +14,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import de.hdodenhof.circleimageview.CircleImageView
 
-class RecyclerViewAdapter2(private val viewModel: MyViewModel):
+class RecyclerViewAdapter2(private val viewModel: MyViewModel, val context: Context?):
     RecyclerView.Adapter<RecyclerViewAdapter2.RecyclerViewViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewViewHolder {
@@ -40,7 +43,8 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
 
         private val profileImage: CircleImageView = itemView.findViewById(R.id.circleImageView)
         private val followerUsername: TextView = itemView.findViewById(R.id.userNametextView)
-        private val unfollowButton: ImageButton = itemView.findViewById(R.id.followStatusButton)
+        private val followingButton: ImageButton = itemView.findViewById(R.id.followingButton)
+        private val followButton: ImageButton = itemView.findViewById(R.id.followButton3)
 
         fun setContents(pos: Int){
             with(viewModel.items2[pos]){
@@ -50,10 +54,29 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
                 followerUsername.text = username
             }
 
-            unfollowButton.setOnClickListener {
-                // 내 팔로잉 숫자 -1 , 내 팔로잉 목록에서 해당 유저 삭제
-                // 해당 유저 팔로워 숫자 -1 , 해당 유저 팔로워 목록에서 나 삭제
-                unfollowUser()
+            followingButton.setOnClickListener {
+
+                val layoutInflater = LayoutInflater.from(context)
+                val view = layoutInflater.inflate(R.layout.custom_dialog2,null)
+
+                val alertDialog = AlertDialog.Builder(context,R.style.CustomAlertDialog)
+                    .setView(view)
+                    .create()
+
+                val confirmButton = view.findViewById<ImageButton>(R.id.confirmButton)
+                val cancelButton = view.findViewById<ImageButton>(R.id.cancelButton)
+
+                confirmButton.setOnClickListener {
+                    // 내 팔로잉 숫자 -1 , 내 팔로잉 목록에서 해당 유저 삭제
+                    // 해당 유저 팔로워 숫자 -1 , 해당 유저 팔로워 목록에서 나 삭제
+                    unfollowUser()
+                    alertDialog.dismiss()
+                }
+                cancelButton.setOnClickListener {
+                    alertDialog.dismiss()
+                }
+
+                alertDialog.show()
 
             }
         }
@@ -62,13 +85,13 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
 
             // alert로 언팔로우 하겠냐고 되묻는거 추가
 
-            // <issue> 맞팔중인 상태에서 팔로잉 목록에서 unfollow 했을때, 팔로워 목록에 있는 해당 유저에 Follow 버튼이 다시 활성화 되어야 하는데 보이지 않음.
+            // <issue> <해결됨> 맞팔중인 상태에서 팔로잉 목록에서 unfollow 했을때,
+            // 팔로워 목록에 있는 해당 유저에 Follow 버튼이 다시 활성화 되어야 하는데 보이지 않음.
 
             val index = adapterPosition
             val clickedUser = viewModel.items2[index] // 현재 로그인한 user의 팔로잉 목록에서 언팔로우당한 user
             userColRef.document(currentUid).get()
                 .addOnSuccessListener {
-//                    var followingList = mutableMapOf<String,String>() // 언팔로우 버튼 누른 user의 원래 팔로잉 목록
                     val followingList = it["following"] as MutableMap<String,String> // 현재 로그인한 user의 팔로잉 목록에서
                     followingList.remove(clickedUser.username) // 해당 유저 삭제
 
@@ -96,37 +119,19 @@ class RecyclerViewAdapter2(private val viewModel: MyViewModel):
                                     .update("follower count",followerList.size) // firestore 팔로워 수 update
                             }
                         }
-//                    userColRef.document(clickedUser.username).get()
-//                        .addOnSuccessListener {
-////                    var followerList = mutableMapOf<String,String>() // 언팔로우 버튼 클릭당한 user의 원래 팔로워 목록
-//                            val followerList = it["follower"] as MutableMap<String, String> // 언팔로우당한 user의 팔로워 목록에서
-//                            followerList.remove(currentUsername) // 현재 로그인한 user 삭제
-//
-//                            userColRef.document(clickedUser.username)
-//                                .update("follower",followerList) // firestore 팔로워 목록 update
-//                            userColRef.document(clickedUser.username)
-//                                .update("follower count",followerList.size) // firestore 팔로워 수 update
-//                        }
                 }
 
-//            userColRef.document(clickedUser.username).get()
-//                .addOnSuccessListener {
-////                    var followerList = mutableMapOf<String,String>() // 언팔로우 버튼 클릭당한 user의 원래 팔로워 목록
-//                    val followerList = it["follower"] as MutableMap<String, String> // 언팔로우당한 user의 팔로워 목록에서
-//                    followerList.remove(currentUid) // 현재 로그인한 user 삭제
-//
-//                    userColRef.document(clickedUser.username)
-//                        .update("follower",followerList) // firestore 팔로워 목록 update
-//                    userColRef.document(clickedUser.username)
-//                        .update("follower count",followerList.size) // firestore 팔로워 수 update
-//                }
+            // <issue> <해결됨> 팔로우 버튼 다른 버튼으로(다시 팔로우하는) 변경하는거 추가해야함
+            // 한 가지 대안으로, 버튼 텍스트를 "팔로잉" 말고 "팔로잉 중" 으로 바꾸고 follower 탭에서 삭제 버튼과 유사한 로직으로 그냥 삭제시켜버리면
+            // 굳이 버튼을 교체하지 않아도 됨.
+            // 언팔로우 alertDialog로 물어볼거면 -> 보여지는 팔로잉 목록에서 바로 없애고
+            // 안 물어볼거면 -> 밑에처럼 버튼 변경하는 방법으로
+//            followingButton.visibility = View.INVISIBLE
+//            followButton.visibility = View.VISIBLE
 
             // 앱에서 보여지는 현재 로그인한 user의 팔로잉 목록 업데이트
             viewModel.deleteItem2(index)
 
-            // <issue> 팔로우 버튼 다른 버튼으로(다시 팔로우하는) 변경하는거 추가해야함
-            // 한 가지 대안으로, 버튼 텍스트를 "팔로잉" 말고 "팔로잉 중" 으로 바꾸고 follower 탭에서 삭제 버튼과 유사한 로직으로 그냥 삭제시켜버리면
-            // 굳이 버튼을 교체하지 않아도 됨.
         }
 
     }

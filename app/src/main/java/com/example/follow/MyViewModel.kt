@@ -12,8 +12,8 @@ class MyViewModel: ViewModel() {
     val itemsListData2 = MutableLiveData<ArrayList<Item>>()
     val items2 = ArrayList<Item>()
 
-//    var mapItems = mutableMapOf<String,String>()
-//    val mapsListData = MutableLiveData<MutableMap<String,String>>()
+
+    /* follower list 관련 */
 
     fun addItem(item: Item){
         items.add(item)
@@ -25,10 +25,8 @@ class MyViewModel: ViewModel() {
         itemsListData.value = items
     }
 
-//    fun upDateItem(pos: Int, item: Item){
-//        items[pos] = item
-//        itemsListData.value = items
-//    }
+
+    /* following list 관련 */
 
     fun addItem2(item: Item){
         items2.add(item)
@@ -39,5 +37,4 @@ class MyViewModel: ViewModel() {
         items2.removeAt(pos)
         itemsListData2.value = items2
     }
-
 }

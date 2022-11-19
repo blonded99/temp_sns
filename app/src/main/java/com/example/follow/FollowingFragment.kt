@@ -13,7 +13,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class FollowingFragment : Fragment() {
-    //    private lateinit var binding: FragmentFollowerBinding // 일단 binding 쓰는건 보류
     private val viewModel by viewModels<MyViewModel>()
 
     val db = Firebase.firestore
@@ -46,20 +45,13 @@ class FollowingFragment : Fragment() {
                     viewModel.addItem2(Item(i.key.toString(),i.value.toString()))
             }
 
-        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.refreshLayout)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = RecyclerViewAdapter2(viewModel)
+        val adapter = RecyclerViewAdapter2(viewModel,context)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         viewModel.itemsListData2.observe(viewLifecycleOwner){
             adapter.notifyDataSetChanged()
-        }
-
-        refreshLayout.setOnRefreshListener {
-            adapter.notifyDataSetChanged()
-            refreshLayout.isRefreshing = false
-
         }
 
     }

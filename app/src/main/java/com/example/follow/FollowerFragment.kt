@@ -16,7 +16,6 @@ import com.google.firebase.ktx.Firebase
 import de.hdodenhof.circleimageview.CircleImageView
 
 class FollowerFragment : Fragment() {
-//    private lateinit var binding: FragmentFollowerBinding // 일단 binding 쓰는건 보류
     private val viewModel by viewModels<MyViewModel>()
 
     val db = Firebase.firestore
@@ -50,7 +49,7 @@ class FollowerFragment : Fragment() {
             }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = RecyclerViewAdapter(viewModel)
+        val adapter = RecyclerViewAdapter(viewModel,context)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 

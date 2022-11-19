@@ -1,12 +1,15 @@
 package com.example.follow
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
+import androidx.fragment.app.*
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -17,8 +20,8 @@ class FollowFragment : Fragment() {
     private lateinit var tabLayout: TabLayout
 
     private val tabTitleArray = arrayOf(
-        "Follower",
-        "Following"
+        "팔로워",
+        "팔로잉"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +72,38 @@ class FollowFragment : Fragment() {
         val searchbutton = view.findViewById<ImageButton>(R.id.searchButton)
         searchbutton.setOnClickListener {
             println("search button clicked")
+            val editTextSearchResult = view.findViewById<EditText>(R.id.editTextSearchPeople).text.toString()
+//            Log.e("name",editTextSearchResult)
+            if(editTextSearchResult=="" || editTextSearchResult == null){
+                val layoutInflater = LayoutInflater.from(context)
+                val view = layoutInflater.inflate(R.layout.custom_dialog_search,null)
+
+                val alertDialog = AlertDialog.Builder(context,R.style.CustomAlertDialog)
+                    .setView(view)
+                    .create()
+
+                val confirmButton = view.findViewById<ImageButton>(R.id.confirmButton)
+
+                confirmButton.setOnClickListener {
+                    alertDialog.dismiss()
+                }
+                alertDialog.show()
+            }
+            else{
+                // bundle 이용
+                val bundle = Bundle()
+                bundle.putString("searchName",editTextSearchResult)
+                val searchFragment = SearchFragment()
+                searchFragment.arguments = bundle
+//                Log.e("arguements check:",searchFragment.arguments?.getString("searchName").toString())
+
+                parentFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    replace(R.id.follow_fragment, searchFragment, null)
+                    addToBackStack(null)
+                }
+            }
+
         }
     }
 }

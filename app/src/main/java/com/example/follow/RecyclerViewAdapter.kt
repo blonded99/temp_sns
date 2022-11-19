@@ -1,5 +1,8 @@
 package com.example.follow
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +15,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import de.hdodenhof.circleimageview.CircleImageView
 
-class RecyclerViewAdapter(private val viewModel: MyViewModel):
+class RecyclerViewAdapter(private val viewModel: MyViewModel, val context: Context?):
     RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewViewHolder {
@@ -52,12 +55,14 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                 followerUsername.text = username
 
                 // 이미 맞팔이면 팔로우 버튼 처음부터 안 뜨게 처리
-                // <issue> 약간 느리게 나오는 이슈 있음, 다른 로직으로 바꿔야 할 듯
+                // <issue> <해결됨> 약간 느리게 나오는 이슈 있음, 다른 로직으로 바꿔야 할 듯
+                // 처음부터 안 보이는 걸 기본값으로 해놓고 맞팔이 아닐경우 버튼 나타내는걸로 변경함
+                // 이번엔 follow버튼이 약간 느리게 나오긴 하는데 이전거보단 나은듯
                 userColRef.document(currentUid).get()
                     .addOnSuccessListener {
-                        val followingList = it["following"] as MutableMap<String,String>
-                        if(followingList.containsKey(username))
-                            followbutton.visibility = View.INVISIBLE
+                        val followingList = it["following"] as MutableMap<String,String> // 현재 로그인한 user의 팔로잉 리스트
+                        if(!followingList.containsKey(username))
+                            followbutton.visibility = View.VISIBLE
                     }
             }
 
@@ -72,11 +77,29 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
 
             }
             deletebutton.setOnClickListener {
-                // 내 팔로워 숫자 -1 , 내 팔로워 목록에서 해당 유저 삭제
-                // 해당 유저 팔로잉 숫자 -1 , 해당 유저 팔로잉 목록에서 나 삭제
-                deleteUser()
+                val layoutInflater = LayoutInflater.from(context)
+                val view = layoutInflater.inflate(R.layout.custom_dialog,null)
 
-                // <issue> fragment 업데이트는 어케?
+                val alertDialog = AlertDialog.Builder(context,R.style.CustomAlertDialog)
+                    .setView(view)
+                    .create()
+
+                val confirmButton = view.findViewById<ImageButton>(R.id.confirmButton)
+                val cancelButton = view.findViewById<ImageButton>(R.id.cancelButton)
+
+                confirmButton.setOnClickListener {
+                    // 내 팔로워 숫자 -1 , 내 팔로워 목록에서 해당 유저 삭제
+                    // 해당 유저 팔로잉 숫자 -1 , 해당 유저 팔로잉 목록에서 나 삭제
+                    deleteUser()
+                    alertDialog.dismiss()
+                }
+                cancelButton.setOnClickListener {
+                    alertDialog.dismiss()
+                }
+
+                alertDialog.show()
+
+                // <issue> <해결됨> fragment 업데이트는 어케?
                 //팔로잉/팔로우 목록 업데이트 하는거 콜백함수로 불러줘야겠는데 일단 뷰모델로 해결
             }
         }
@@ -86,7 +109,6 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
             val clickedUser = viewModel.items[index] // 현재 로그인한 user의 팔로워 목록에서 팔로우당한 user
             userColRef.document(currentUid).get()
                 .addOnSuccessListener {
-//                    var followingList = mutableMapOf<String, String>() // 현재 로그인한 user의 원래 팔로잉 목록
                     val followingList = it["following"] as MutableMap<String, String> // 현재 로그인한 user의 팔로잉 목록에
                     followingList.put(clickedUser.username, clickedUser.profileImageUrl) // 해당 유저 추가
 
@@ -112,11 +134,9 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                                     .update("follower count",followerList.size) // firestore 팔로워 수 update
 
                                 // 앱에서 보여지는 현재 로그인한 user의 팔로잉 목록 업데이트
-                                // <issue> follower 탭에서 팔로우시 following탭에 즉시 반영되지 않는(오락가락함) 이슈 있는데
+                                // <issue> <해결됨> follower 탭에서 팔로우시 following탭에 즉시 반영되지 않는(오락가락함) 이슈 있는데
                                 // 일단 notifyDataSetChanged() 호출 문제는 아님. refresh로 호출해주는데도 변화가 없음.
                                 viewModel.addItem2(Item(clickedUser.username,doc["profile image"].toString()))
-                                Log.d("viewModelStatusLog","${viewModel.items2.get(0)}")
-                                // viewModel에는 정상적으로 들어감
                             }
                         }
 
@@ -125,13 +145,10 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
 
         private fun deleteUser(){
 
-            // alert로 삭제하겠냐고 되묻는거 추가
-
             val index = adapterPosition
             val clickedUser = viewModel.items[index] // 현재 로그인한 user의 팔로워 목록에서 삭제당한 user
             userColRef.document(currentUid).get()
                 .addOnSuccessListener {
-//                    var followerList = mutableMapOf<String,String>() // 삭제 버튼 누른 user의 원래 팔로워 목록
                     val followerList = it["follower"] as MutableMap<String,String> // 현재 로그인한 user의 팔로워 목록에서
                     followerList.remove(clickedUser.username) // 해당 유저 삭제
 
@@ -158,33 +175,7 @@ class RecyclerViewAdapter(private val viewModel: MyViewModel):
                                     .update("following count",followingList.size) // firestore 팔로잉 수 update
                             }
                         }
-
-//                    userColRef.document(clickedUser.username).get()
-//                        .addOnSuccessListener {
-////                    var followingList = mutableMapOf<String,String>() // 삭제 버튼 클릭당한 user의 원래 팔로잉 목록
-//                            val followingList = it["following"] as MutableMap<String, String> // 삭제당한 user의 팔로잉 목록에서
-//                            followingList.remove(currentUsername) // 현재 로그인한 user 삭제
-//
-//                            userColRef.document(clickedUser.username)
-//                                .update("following",followingList) // firestore 팔로잉 목록 update
-//                            userColRef.document(clickedUser.username)
-//                                .update("following count",followingList.size) // firestore 팔로잉 수 update
-//                        }
-
-
                 }
-
-//            userColRef.document(clickedUser.username).get()
-//                .addOnSuccessListener {
-////                    var followingList = mutableMapOf<String,String>() // 삭제 버튼 클릭당한 user의 원래 팔로잉 목록
-//                    val followingList = it["following"] as MutableMap<String, String> // 삭제당한 user의 팔로잉 목록에서
-//                    followingList.remove(currentUid) // 현재 로그인한 user 삭제
-//
-//                    userColRef.document(clickedUser.username)
-//                        .update("following",followingList) // firestore 팔로잉 목록 update
-//                    userColRef.document(clickedUser.username)
-//                        .update("following count",followingList.size) // firestore 팔로잉 수 update
-//                }
 
             // 앱에서 보여지는 현재 로그인한 user의 팔로워 목록 업데이트
             viewModel.deleteItem(index)
